@@ -1,10 +1,21 @@
 from aiogram import F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.types import CallbackQuery, Message
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.context import FSMContext
 
 import app.keyboards as kb
 
 router = Router()  # router object
+
+
+class Registration(StatesGroup):
+    """
+    Клас на который я буду ориентироваться при присвоении этих состояний пользователю
+    Машина состояний обычно выполняется постепенно
+    """
+    name = State()
+    phone_number = State()
 
 
 @router.message(CommandStart())  # Ловим команду /start
@@ -67,3 +78,24 @@ async def back_to_start_callback(callback: CallbackQuery):
     """Callback controller to back to start"""
     await callback.answer('')
     await callback.message.edit_text('back to start', reply_markup=kb.main_cb)  # Edit text
+
+
+@router.message(Command('registration'))
+async def registration_one(message: Message, state: FSMContext):
+    await state.set_state(Registration.name)  # Установить состояние
+    await message.answer('Type your name')
+
+
+@router.message(Registration.name)
+async def registration_two(message: Message, state: FSMContext):
+    await state.update_data(name=message.text)  # Установить указанное имя
+    await state.set_state(Registration.phone_number)
+    await message.answer('Type your phone number')
+
+
+@router.message(Registration.phone_number)
+async def two_three(message: Message, state: FSMContext):
+    await state.update_data(phone_number=message.text)
+    data = await state.get_data()  # Достать и сохранить информацию
+    await message.answer(f'Success, registration completed!\nName: {data["name"]}\nPhone number: {data["phone_number"]}')  # Готово! Вывод информации
+    await state.clear()  # В конце обязательно очистить
