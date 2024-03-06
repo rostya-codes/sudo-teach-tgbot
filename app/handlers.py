@@ -5,8 +5,11 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 
 import app.keyboards as kb
+from app.middlewares import TestMiddleware
 
 router = Router()  # router object
+
+router.message.outer_middleware(TestMiddleware())
 
 
 class Registration(StatesGroup):
