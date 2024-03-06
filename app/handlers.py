@@ -2,6 +2,9 @@ from aiogram import F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message
 
+import app.keyboards as kb
+
+
 router = Router()  # router object
 
 
@@ -10,17 +13,17 @@ async def cmd_start(message: Message):
     await message.reply(f'''Hello!
 Your user id: {message.from_user.id}
 firstname: {message.from_user.first_name}
-lastname: {message.from_user.last_name}''')
+lastname: {message.from_user.last_name}''', reply_markup=kb.main)
 
 
 @router.message(Command('help'))  # Ловим команду /help
 async def get_help(message: Message):
-    await message.answer('It\'s /help command.')
+    await message.answer('It\'s /help command.', reply_markup=kb.settings)
 
 
 @router.message(F.text == 'How are you?')  # Ловим текст
 async def how_are_you(message: Message):
-    await message.answer('OK!')
+    await message.answer('OK!', reply_markup=await kb.inline_cars())
 
 
 @router.message(F.photo)  # Ловим фото
